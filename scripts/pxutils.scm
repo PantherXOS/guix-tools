@@ -5,8 +5,8 @@
   #:use-module (guix licenses)
   #:use-module (json)
   #:export (all-packages
-            package-as-json))
-
+            package-as-json
+            all-packages-as-json))
 
 (define %package-list
   (delay
@@ -64,7 +64,7 @@
                      result))
 
 
-(define package-as-json (lambda (pkg)
+(define make-package-object (lambda (pkg)
               (define jdata (make-hash-table))
               (define dependencies '())
               (define licenses '())
@@ -83,4 +83,17 @@
               (hash-set! jdata 'synopsis (package-synopsis pkg))
               (hash-set! jdata 'description (package-description pkg))
 
-              (scm->json-string jdata #:pretty #t)))
+              jdata))
+
+
+(define package-as-json (lambda (pkg)
+                     (scm->json-string (make-package-object pkg) #:pretty #t)))
+
+
+(define all-packages-as-json (lambda () 
+       (define result '())
+       (for-each 
+              (lambda (pkg) 
+                     (set! result (append result (list (make-package-object pkg)))))
+              (all-packages))
+       (scm->json-string result #:pretty #t)))
