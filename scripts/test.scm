@@ -1,4 +1,4 @@
-(use-modules (pxutils)
+(use-modules (packageutils)
         (guix packages)
         (json))
 

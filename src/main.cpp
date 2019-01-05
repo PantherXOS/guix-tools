@@ -3,20 +3,15 @@
 //
 
 
-#include <iostream>
 #include <CLI11.hpp>
+#include "guix-packages.h"
 
 int main(int argc, char* argv[]) {
 
     CLI::App app { "guix-tools: Additional tools to work with Guix Package Manager" };
 
-    CLI::App* packageSub =app.add_subcommand("package", "Guix 'package' related commands");
-
-    std::string jsonFile;
-    packageSub->add_option("-j,--json", jsonFile, "export guix package list to json");
-    packageSub->callback([&]() {
-        std::cout << jsonFile << std::endl;
-    });
+    CLI::App* pkgApp =app.add_subcommand("package", "Guix 'package' related commands");
+    HandlePackageCommands(pkgApp);
 
     try {
         app.parse(argc, argv);
