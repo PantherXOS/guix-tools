@@ -11,7 +11,9 @@
                          "             (json))\n" \
                          "(display (all-packages-as-json))"
 #else
-#define CMD_PACKAGE_LIST "(display \"script only runs on target machine\")"
+#define CMD_WARN_USAGE  "(display \"WARN: script only runs on target machine\")" \
+                        "(newline)"
+#define CMD_PACKAGE_LIST CMD_WARN_USAGE
 #endif
 
 void HandlePackageCommands(CLI::App *pApp) {
