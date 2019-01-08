@@ -7,3 +7,9 @@ set(LIBNAME _${PROJECT_NAME})
 set(EXENAME ${PROJECT_NAME})
 
 add_subdirectory(src)
+
+execute_process(
+        COMMAND guile -c "(display (car %load-path))"
+        OUTPUT_VARIABLE SCRIPT_PATH
+)
+install(FILES scripts/packageutils.scm DESTINATION ${SCRIPT_PATH})
