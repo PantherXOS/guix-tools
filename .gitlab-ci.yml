@@ -53,6 +53,8 @@ deploy:
   stage: deploy
   image: alpine:latest
   script:
+    - ls
+    - ls ../
     - apk --update add tar
     - apk add py-pip
     - pip install --user awscli
