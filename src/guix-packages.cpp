@@ -6,7 +6,7 @@
 #include "guix-tools.h"
 
 #ifdef __linux__
-#define CMD_PACKAGE_LIST "(use-modules (packageutils)\n" \
+#define CMD_PACKAGE_LIST "(use-modules (guixtools package)\n" \
                          "             (guix packages)\n" \
                          "             (json))\n" \
                          "(display (all-packages-as-json))"

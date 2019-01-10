@@ -1,4 +1,4 @@
-(define-module (packageutils)
+(define-module (guixtools package)
   #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix utils)
