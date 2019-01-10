@@ -2,14 +2,43 @@
 
 A collection of Guix tools.
 
-## Package Index
-
-### to File
-
-A tiny tool, to output the current _guix_ package index, to file.
+## Usage Help
+for each sub-command there is a `--help` switch, that shows commands help document: 
 
 ```bash
-$ guix-tools package -json index.json
+$ guix-tools --help
+guix-tools: Additional tools to work with Guix Package Manager
+Usage: guix-tools [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print this help message and exit
+
+Subcommands:
+  package                     Guix 'package' related commands
+
+
+$ guix-tools package --help
+Guix 'package' related commands
+Usage: guix-tools package [OPTIONS]
+
+Options:
+  -h,--help                   Print this help message and exit
+  -j,--json                   Export guix package list as json
+
+```
+
+## Package Index
+
+A tiny tool, to output the current _guix_ package index.
+
+```bash
+$ guix-tools package --json
+```
+
+Command output also could be redirected to a file:
+
+```bash
+$ guix-tools package --json > index.json
 ```
 
 example output, showing individual entry:
