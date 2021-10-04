@@ -1,19 +1,10 @@
-(use-modules (packageutils)
+(add-to-load-path (dirname (current-filename)))
+
+(use-modules (guixtools package)
         (guix packages)
         (json))
 
-; (for-each (lambda (pkg) 
-;                 (if (string=? (package-name pkg) "git")
-;                         (display (package-as-json pkg)))
 
-;                 ; (define jsn (package-as-json pkg))
-;                 ; (if (string=? (package-name pkg) "git")
-;                 ;         (display jsn))
-;         )
-;         (all-packages))
-
-; (newline)
-
-(display (all-packages-as-json))
+(display (all-packages-as-json #:pretty? #t))
 
 (newline)
