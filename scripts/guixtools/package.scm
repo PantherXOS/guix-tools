@@ -8,6 +8,7 @@
             package-as-json
             all-packages-as-json))
 
+
 (define %package-list
   (delay
     ;; Note: Dismiss packages found in $GUIX_PACKAGE_PATH.
@@ -36,64 +37,68 @@
   (force %package-list))
 
 
-(define extract-dependency-names (lambda (deps extracted_deps)
-              (define dep_list '())
-              (for-each 
-                     (lambda (d)
-                            (define pkg (car (cdr d)))
-                            (if (and (package? pkg) (not (member (package-full-name pkg) extracted_deps)))
-                                   (set! dep_list (append dep_list (list (package-full-name pkg))))))
-                     deps)
-              dep_list))
+(define extract-dependency-names
+  (lambda (deps extracted_deps)
+    (define dep_list '())
+    (for-each
+     (lambda (d)
+       (define pkg (car (cdr d)))
+       (if (and (package? pkg) (not (member (package-full-name pkg) extracted_deps)))
+           (set! dep_list (append dep_list (list (package-full-name pkg))))))
+     deps)
+    dep_list))
 
-(define package-dependencies (lambda (pkg)
-              (define all_deps '())
-              (set! all_deps (append all_deps (extract-dependency-names (package-inputs pkg) all_deps)))
-              (set! all_deps (append all_deps (extract-dependency-names (package-native-inputs pkg) all_deps)))
-              (set! all_deps (append all_deps (extract-dependency-names (package-propagated-inputs pkg) all_deps)))
-              all_deps))
-
-(define extract-license-names (lambda (pkg)
-                     (define result '())
-                     (for-each 
-                            (lambda (lic)
-                                   (set! result (append result (list (license-name lic)))))
-                            (if (list? (package-license pkg))
-                                   (package-license pkg)
-                                   (list (package-license pkg))))
-                     result))
+(define package-dependencies
+  (lambda (pkg)
+    (define all_deps '())
+    (set! all_deps (append all_deps (extract-dependency-names (package-inputs pkg) all_deps)))
+    (set! all_deps (append all_deps (extract-dependency-names (package-native-inputs pkg) all_deps)))
+    (set! all_deps (append all_deps (extract-dependency-names (package-propagated-inputs pkg) all_deps)))
+    all_deps))
 
 
-(define make-package-object (lambda (pkg)
-              (define jdata (make-hash-table))
-              (define dependencies '())
-              (define licenses '())
-
-              (hash-set! jdata 'name (package-name pkg))
-              (hash-set! jdata 'version (package-version pkg))
-              (hash-set! jdata 'outputs (string-join (package-outputs pkg) " "))
-              (hash-set! jdata 'systems (string-join (package-supported-systems pkg) " "))
-              (hash-set! jdata 'dependencies (string-join (package-dependencies pkg) " "))
-              (hash-set! jdata 'location (format #f "location: ~a:~a:~a" 
-                                                        (location-file (package-location pkg))
-                                                        (location-line (package-location pkg))
-                                                        (location-column (package-location pkg))))
-              (hash-set! jdata 'homepage (package-home-page pkg))
-              (hash-set! jdata 'license (string-join (extract-license-names pkg) ", "))
-              (hash-set! jdata 'synopsis (package-synopsis pkg))
-              (hash-set! jdata 'description (package-description pkg))
-
-              jdata))
+(define (extract-license-names pkg)
+  (with-exception-handler
+      (lambda (exp)
+	(format (current-error-port) "Exception Caught: ~s\n" exp)
+	'())
+    (lambda ()
+      (let ((licenses (package-license pkg)))
+    (map (lambda (lic)
+	   (license-name lic))
+	 (if (list? licenses)
+	     licenses
+	     (list licenses)))))
+    #:unwind? #t))
 
 
-(define package-as-json (lambda (pkg)
-                     (scm->json-string (make-package-object pkg) #:pretty #t)))
+(define (extract-package pkg)
+  `(("name" . ,(package-name pkg))
+    ("version" . ,(package-version pkg))
+    ("outputs" . ,(list->vector (package-outputs pkg)))
+    ("systems" . ,(list->vector (package-supported-systems pkg)))
+    ("dependencies" . ,(list->vector (package-dependencies pkg)))
+    ("location" . ,(format #f "~a:~a:~a"
+			   (location-file (package-location pkg))
+			   (location-line (package-location pkg))
+			   (location-column (package-location pkg))))
+    ("home-page" . ,(package-home-page pkg))
+    ("license" . ,(list->vector (extract-license-names pkg)))
+    ("synopsis" . ,(package-synopsis pkg))
+    ("description" . ,(package-description pkg))))
 
 
-(define all-packages-as-json (lambda () 
-       (define result '())
-       (for-each 
-              (lambda (pkg) 
-                     (set! result (append result (list (make-package-object pkg)))))
-              (all-packages))
-       (scm->json-string result #:pretty #t)))
+(define* (package-as-json pkg #:key (pretty? #t))
+  (scm->json-string (extract-package pkg)
+		    #:pretty pretty?
+		    #:unicode #t))
+
+
+(define* (all-packages-as-json #:key (pretty? #t))
+  (scm->json-string
+   (list->vector
+    (map (lambda (pkg)
+	   (extract-package pkg))
+	 (all-packages)))
+   #:pretty pretty?
+   #:unicode #t))
