@@ -13,15 +13,24 @@
   (delay
     ;; Note: Dismiss packages found in $GUIX_PACKAGE_PATH.
     (let ((packages
-           (sort (parameterize ((%package-module-path (last-pair
-                                                       (%package-module-path))))
-                   (fold-packages (lambda (package lst)
-                                    (if (package-superseded package)
-                                        lst
-                                        (cons (or (package-replacement package)
-                                                  package)
-                                              lst)))
-                                  '()))
+           (sort (fold-packages (lambda (package lst)
+                                  (if (package-superseded package)
+                                      lst
+                                      (cons (or (package-replacement package)
+                                                package)
+                                            lst)))
+                                '())
+                  ;; Note: Previous implementation has been commented, since
+                  ;;       we need list of the packages located on all channels.
+                  ; (parameterize ((%package-module-path (last-pair
+                  ;                                      (%package-module-path))))
+                  ;  (fold-packages (lambda (package lst)
+                  ;                   (if (package-superseded package)
+                  ;                       lst
+                  ;                       (cons (or (package-replacement package)
+                  ;                                 package)
+                  ;                             lst)))
+                  ;                 '()))
                  (lambda (p1 p2)
                    (string<? (package-name p1)
                              (package-name p2))))))
@@ -102,3 +111,9 @@
 	 (all-packages)))
    #:pretty pretty?
    #:unicode #t))
+
+
+;; Added since the `guix repl` only can execute a file, and we couldn't pass the 
+;; guile commads directly from stdout. 
+(display (all-packages-as-json))
+(newline)
