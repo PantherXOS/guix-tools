@@ -11,7 +11,7 @@ using namespace std;
 
 namespace GUIXTOOLS {
 
-    string exec_guile_command(const char *cmd);
+    string exec_on_guix_repl(const std::string &command);
 }
 
 #endif //GUIX_TOOLS_GUIX_TOOLS_H

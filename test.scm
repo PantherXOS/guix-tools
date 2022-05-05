@@ -10,14 +10,14 @@
 
 (package
     (name "guix-tools")
-    (version "0.1.1")
+    (version "0.1.10")
     (source (local-file "." "guix-tools" #:recursive? #t))
     (build-system cmake-build-system)
     (arguments
         `(#:tests? #f))
     (inputs `(
-        ("guile-json", guile-json)
-        ("guile", guile-2.2)))
+        ("guile-json", guile-json-1)
+        ("guile", guile-3.0)))
     (native-inputs `(
         ("pkg-config", pkg-config)))
     (home-page "https://PantherX.org")
